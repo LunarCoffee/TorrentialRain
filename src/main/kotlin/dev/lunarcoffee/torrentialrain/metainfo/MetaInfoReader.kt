@@ -2,6 +2,9 @@ package dev.lunarcoffee.torrentialrain.metainfo
 
 import dev.lunarcoffee.torrentialrain.bencoding.*
 import dev.lunarcoffee.torrentialrain.errorAndExit
+import java.io.File
+import java.math.BigInteger
+import java.security.MessageDigest
 
 class MetaInfoReader(private val bencodeReader: BencodeReader) {
     fun read(): TorrentMetaInfo {
@@ -40,6 +43,7 @@ class MetaInfoReader(private val bencodeReader: BencodeReader) {
 
     private fun readTransferInfo(tree: BDict): TorrentTransferInfo {
         val infoRaw = tree["info"]!! as BDict
+        val infoHash = getPercentEncodedSha1(infoRaw.bencode())
 
         val pieceSize = infoRaw["piece length"]!! as BInt
         val pieces = infoRaw["pieces"]!! as BString
@@ -58,7 +62,8 @@ class MetaInfoReader(private val bencodeReader: BencodeReader) {
                 private.value == 1L,
                 TorrentFileMode.SINGLE_FILE,
                 name.string,
-                listOf(TorrentFileInfo(length.value, checksum?.string, name.string))
+                listOf(TorrentFileInfo(length.value, checksum?.string, name.string)),
+                infoHash
             )
         } else {
             val filesRaw = infoRaw["files"]!! as BList
@@ -80,8 +85,17 @@ class MetaInfoReader(private val bencodeReader: BencodeReader) {
                 private.value == 1L,
                 TorrentFileMode.MULTIPLE_FILE,
                 name.string,
-                files
+                files,
+                infoHash
             )
         }
+    }
+
+    private fun getPercentEncodedSha1(string: String): String {
+        println(string)
+        val digest = MessageDigest.getInstance("SHA-1").apply { update(string.toByteArray(Charsets.US_ASCII)) }
+        val hash = BigInteger(1, digest.digest()).toString(16)
+
+        return hash.also(::println)
     }
 }

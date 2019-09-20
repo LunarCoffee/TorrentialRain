@@ -6,5 +6,6 @@ class TorrentTransferInfo(
     val private: Boolean,
     val mode: TorrentFileMode,
     val name: String,
-    val files: List<TorrentFileInfo>
+    val files: List<TorrentFileInfo>,
+    val infoHash: String
 )

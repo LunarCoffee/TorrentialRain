@@ -11,7 +11,7 @@ private fun main() {
 //        "File at path '$path' does not exist!".errorAndExit()
 //    }
 
-    val torrent = "src/main/resources/tears-of-steel.torrent"
+    val torrent = "src/main/resources/example.torrent"
     val metaInfo = MetaInfoReader(BencodeReader(File(torrent).readBytes())).read()
     println(metaInfo)
 }

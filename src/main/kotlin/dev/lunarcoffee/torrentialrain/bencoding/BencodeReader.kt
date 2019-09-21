@@ -1,6 +1,7 @@
 package dev.lunarcoffee.torrentialrain.bencoding
 
 import dev.lunarcoffee.torrentialrain.errorAndExit
+import dev.lunarcoffee.torrentialrain.toActualString
 
 class BencodeReader(private val text: ByteArray) {
     private var pos = 0
@@ -31,7 +32,7 @@ class BencodeReader(private val text: ByteArray) {
             "Expected a string of length $length, got string of length ${string.size}"
                 .errorAndExit()
 
-        return BString(string.joinToString("") { it.toChar().toString() })
+        return BString(string.toActualString())
     }
 
     private fun int(): BInt {
@@ -77,6 +78,6 @@ class BencodeReader(private val text: ByteArray) {
     private fun consumeWhile(regex: Regex): String {
         val string = text.drop(pos).takeWhile { it.toChar().toString() matches regex }
         pos += string.size
-        return string.joinToString("") { it.toChar().toString() }
+        return string.toActualString()
     }
 }

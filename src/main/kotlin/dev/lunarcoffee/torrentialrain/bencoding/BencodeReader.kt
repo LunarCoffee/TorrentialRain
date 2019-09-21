@@ -1,7 +1,6 @@
 package dev.lunarcoffee.torrentialrain.bencoding
 
 import dev.lunarcoffee.torrentialrain.errorAndExit
-import kotlin.properties.Delegates
 
 class BencodeReader(private val text: ByteArray) {
     private var pos = 0

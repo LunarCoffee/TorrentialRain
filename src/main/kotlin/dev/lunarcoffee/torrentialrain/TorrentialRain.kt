@@ -2,6 +2,7 @@ package dev.lunarcoffee.torrentialrain
 
 import dev.lunarcoffee.torrentialrain.bencoding.BencodeReader
 import dev.lunarcoffee.torrentialrain.metainfo.MetaInfoReader
+import dev.lunarcoffee.torrentialrain.metainfo.TorrentInfoHash
 import java.io.File
 
 private fun main() {
@@ -12,6 +13,7 @@ private fun main() {
 //    }
 
     val torrent = "src/main/resources/example.torrent"
-    val metaInfo = MetaInfoReader(BencodeReader(File(torrent).readBytes())).read()
+    val bytes = File(torrent).readBytes()
+    val metaInfo = MetaInfoReader(BencodeReader(bytes), TorrentInfoHash(bytes)).read()
     println(metaInfo)
 }

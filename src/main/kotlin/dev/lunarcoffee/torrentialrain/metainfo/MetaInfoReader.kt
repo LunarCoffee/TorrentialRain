@@ -58,7 +58,7 @@ class MetaInfoReader(
 
             TorrentTransferInfo(
                 pieceSize.value,
-                pieces.string,
+                pieces.string.chunked(20),
                 private.value == 1L,
                 TorrentFileMode.SINGLE_FILE,
                 name.string,
@@ -81,7 +81,7 @@ class MetaInfoReader(
 
             TorrentTransferInfo(
                 pieceSize.value,
-                pieces.string,
+                pieces.string.chunked(20),
                 private.value == 1L,
                 TorrentFileMode.MULTIPLE_FILE,
                 name.string,

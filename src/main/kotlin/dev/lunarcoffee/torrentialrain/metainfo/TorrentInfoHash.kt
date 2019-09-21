@@ -1,5 +1,6 @@
 package dev.lunarcoffee.torrentialrain.metainfo
 
+import dev.lunarcoffee.torrentialrain.getSha1Checksum
 import dev.lunarcoffee.torrentialrain.toActualString
 import java.math.BigInteger
 import java.security.MessageDigest
@@ -32,11 +33,6 @@ class TorrentInfoHash(private val text: ByteArray) {
             pos++
         }
 
-        return getPercentEncodedSha1(text.slice(start..pos).toByteArray())
-    }
-
-    private fun getPercentEncodedSha1(value: ByteArray): String {
-        val digest = MessageDigest.getInstance("SHA-1").apply { update(value) }
-        return BigInteger(1, digest.digest()).toString(16)
+        return text.slice(start..pos).toByteArray().getSha1Checksum()
     }
 }

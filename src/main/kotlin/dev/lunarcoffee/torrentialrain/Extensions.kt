@@ -1,5 +1,7 @@
 package dev.lunarcoffee.torrentialrain
 
+import java.math.BigInteger
+import java.security.MessageDigest
 import kotlin.system.exitProcess
 
 fun String.errorAndExit(): Nothing {
@@ -9,3 +11,8 @@ fun String.errorAndExit(): Nothing {
 
 fun Iterable<Byte>.toActualString() = joinToString("") { it.toChar().toString() }
 fun ByteArray.toActualString() = joinToString("") { it.toChar().toString() }
+
+fun ByteArray.getSha1Checksum(): String {
+    val digest = MessageDigest.getInstance("SHA-1").apply { update(this@getSha1Checksum) }
+    return BigInteger(1, digest.digest()).toString(16)
+}

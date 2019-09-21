@@ -6,7 +6,7 @@ import java.security.MessageDigest
 
 class TorrentInfoHash(private val text: ByteArray) {
     fun getInfoHash(): String {
-        val start = text.toActualString().windowed(4).indexOf("info") + 4
+        val start = text.toActualString().windowed(7).indexOf("4:infod") + 6
         var pos = start
         var nesting = 0
 

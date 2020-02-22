@@ -1,13 +1,11 @@
 package dev.lunarcoffee.torrentialrain.metainfo
 
 import dev.lunarcoffee.torrentialrain.getSha1Checksum
-import dev.lunarcoffee.torrentialrain.toActualString
-import java.math.BigInteger
-import java.security.MessageDigest
+import dev.lunarcoffee.torrentialrain.intoString
 
 class TorrentInfoHash(private val text: ByteArray) {
     fun getInfoHash(): String {
-        val start = text.toActualString().windowed(7).indexOf("4:infod") + 6
+        val start = text.intoString().windowed(7).indexOf("4:infod") + 6
         var pos = start
         var nesting = 0
 
@@ -27,6 +25,7 @@ class TorrentInfoHash(private val text: ByteArray) {
                 }
                 'e' -> nesting--
             }
+
             // If the info dictionary has been exited, we are done.
             if (nesting == 0)
                 break

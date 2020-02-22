@@ -1,12 +1,14 @@
 package dev.lunarcoffee.torrentialrain.torrent
 
 import dev.lunarcoffee.torrentialrain.metainfo.TorrentMetaInfo
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
+import java.io.File
 
-class DownloadManager(
-    private val metaInfo: TorrentMetaInfo
-) : CoroutineScope by CoroutineScope(Dispatchers.IO) {
+class DownloadManager(private val metaInfo: TorrentMetaInfo, private val outputDir: File) {
+    suspend fun start() {
 
+    }
 
+    suspend fun stop() {
+
+    }
 }

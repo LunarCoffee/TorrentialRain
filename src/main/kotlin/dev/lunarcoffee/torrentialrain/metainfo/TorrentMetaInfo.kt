@@ -1,7 +1,7 @@
 package dev.lunarcoffee.torrentialrain.metainfo
 
 class TorrentMetaInfo(
-    val info: TorrentTransferInfo,
+    val transferInfo: TorrentTransferInfo,
     val announceUrl: String,
     val announceList: List<List<String>>,
     val creationTime: Long,

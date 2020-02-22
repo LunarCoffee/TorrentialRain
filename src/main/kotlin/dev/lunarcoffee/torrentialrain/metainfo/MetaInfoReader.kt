@@ -1,90 +1,74 @@
 package dev.lunarcoffee.torrentialrain.metainfo
 
-import dev.lunarcoffee.torrentialrain.bencoding.*
+import dev.lunarcoffee.torrentialrain.bencode.BencodeReader
 import dev.lunarcoffee.torrentialrain.errorAndExit
 
-class MetaInfoReader(
-    private val bencodeReader: BencodeReader,
-    private val infoHash: TorrentInfoHash
-) {
-    fun read(): TorrentMetaInfo {
-        return try {
-            readMetaInfo()
-        } catch (t: Throwable) {
-            t.printStackTrace()
-            "Invalid torrent metainfo file!".errorAndExit()
-        }
-    }
+@Suppress("UNCHECKED_CAST", "MapGetWithNotNullAssertionOperator")
+class MetaInfoReader(private val bencodeReader: BencodeReader, private val infoHash: TorrentInfoHash) {
+    fun read() = runCatching { readMetaInfo() }.getOrNull() ?: "Invalid torrent metainfo file!".errorAndExit()
 
-    private fun readMetaInfo(): TorrentMetaInfo {
-        val tree = bencodeReader.parse() as BDict
+    private fun readMetaInfo(): TorrentMetaInfo? {
+        val tree = bencodeReader.read<Map<String, Any>>() ?: return null
 
         val transferInfo = readTransferInfo(tree)
-        val announceUrl = tree["announce"]!! as BString
-        val announceList = tree["announce-list"] as BList?
-        val creationTime = tree["creation date"] as BInt?
-        val comment = tree["comment"] as BString?
-        val createdBy = tree["createdBy"] as BString?
-        val encoding = tree["encoding"] as BString?
+        val announceUrl = tree["announce"]!! as String
+        val announceList = tree["announce-list"] as List<List<String>>?
+        val creationTime = tree["creation date"] as Long?
+        val comment = tree["comment"] as String?
+        val createdBy = tree["createdBy"] as String?
+        val encoding = tree["encoding"] as String?
 
         return TorrentMetaInfo(
             transferInfo,
-            announceUrl.string,
-            announceList
-                ?.contents
-                ?.map { list -> (list as BList).contents.map { (it as BString).string } }
-                ?: emptyList(),
-            creationTime?.value ?: -1,
-            comment?.string ?: "",
-            createdBy?.string ?: "",
-            encoding?.string
+            announceUrl,
+            announceList ?: emptyList(),
+            creationTime ?: -1L,
+            comment ?: "",
+            createdBy ?: "",
+            encoding
         )
     }
 
-    private fun readTransferInfo(tree: BDict): TorrentTransferInfo {
-        val infoRaw = tree["info"]!! as BDict
+    private fun readTransferInfo(tree: Map<String, Any>): TorrentTransferInfo {
+        val infoRaw = tree["info"] as Map<String, Any>
         val infoHash = infoHash.getInfoHash()
 
-        val pieceSize = infoRaw["piece length"]!! as BInt
-        val pieces = infoRaw["pieces"]!! as BString
-        val private = infoRaw["private"] as BInt? ?: BInt(0)
+        val pieceSize = infoRaw["piece length"]!! as Long
+        val pieces = infoRaw["pieces"]!! as String
+        val private = infoRaw["private"] as Long? ?: 0
 
-        val name = infoRaw["name"] as BString? ?: BString("file")
+        val name = infoRaw["name"] as String? ?: "file"
         val isSingleFile = infoRaw["length"] != null
 
         return if (isSingleFile) {
-            val length = infoRaw["length"]!! as BInt
-            val checksum = infoRaw["md5sum"] as BString?
+            val length = infoRaw["length"]!! as Long
+            val checksum = infoRaw["md5sum"] as String?
 
             TorrentTransferInfo(
-                pieceSize.value,
-                pieces.string.chunked(20),
-                private.value == 1L,
+                pieceSize,
+                pieces.chunked(20),
+                private == 1L,
                 TorrentFileMode.SINGLE_FILE,
-                name.string,
-                listOf(TorrentFileInfo(length.value, checksum?.string, name.string)),
+                name,
+                listOf(TorrentFileInfo(length, checksum, name)),
                 infoHash
             )
         } else {
-            val filesRaw = infoRaw["files"]!! as BList
-            val files = filesRaw.contents.map { it as BDict }.map { file ->
-                val length = file["length"]!! as BInt
-                val checksum = file["md5sum"] as BString?
-                val path = file["path"]!! as BList
+            val filesRaw = infoRaw["files"]!! as List<Map<String, Any>>
+            val files = filesRaw.map { file ->
+                val length = file["length"]!! as Long
+                val checksum = file["md5sum"] as String?
+                val path = file["path"]!! as List<String>
 
-                TorrentFileInfo(
-                    length.value,
-                    checksum?.string,
-                    path.contents.joinToString("") { "${(it as BString).string}/" }
-                )
+                TorrentFileInfo(length, checksum, path.joinToString("") { "$it/" })
             }
 
             TorrentTransferInfo(
-                pieceSize.value,
-                pieces.string.chunked(20),
-                private.value == 1L,
+                pieceSize,
+                pieces.chunked(20),
+                private == 1L,
                 TorrentFileMode.MULTIPLE_FILE,
-                name.string,
+                name,
                 files,
                 infoHash
             )

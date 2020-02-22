@@ -9,8 +9,8 @@ fun String.errorAndExit(): Nothing {
     exitProcess(1)
 }
 
-fun Iterable<Byte>.toActualString() = joinToString("") { it.toChar().toString() }
-fun ByteArray.toActualString() = joinToString("") { it.toChar().toString() }
+fun Iterable<Byte>.intoString() = joinToString("") { it.toChar().toString() }
+fun ByteArray.intoString() = joinToString("") { it.toChar().toString() }
 
 fun ByteArray.getSha1Checksum(): String {
     val digest = MessageDigest.getInstance("SHA-1").apply { update(this@getSha1Checksum) }
